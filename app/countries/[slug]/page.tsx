@@ -399,8 +399,8 @@ export default async function CountryPage({ params }: { params: Promise<{ slug: 
           <p>{slug === "sudros" ? "Основные силы в гражданской войне за наследие империи." : slug === "nocturn" ? "Основные силы власти в шатком порядке мрачного государства." : "Уникальные черты и легенды этого государства."}</p>
         </div>
         {isDetailed && countryData.housesImage ? (
-          <div className="country-houses-art">
-            <Image src={countryData.housesImage} alt={`Особенности ${country.name}`} fill sizes="(max-width: 1200px) 100vw, 46vw" />
+          <div className={slug === "jospiora" ? "country-houses-art country-houses-art-transparent" : "country-houses-art"}>
+            <Image src={countryData.housesImage} alt={`Особенности ${country.name}`} fill sizes="(max-width: 1200px) 100vw, 46vw" style={{ objectFit: slug === "jospiora" ? "contain" : "cover" }} />
           </div>
         ) : null}
         <div className="house-list">
