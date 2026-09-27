@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "@/app/components/theme-toggle";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -668,7 +669,7 @@ export default async function OrganizationPage({ params }: { params: Promise<{ s
           <small>LA FRONTIER</small>
         </Link>
         <Link className="text-link" href="/#organizations">← Все организации</Link>
-      </header>
+      <ThemeToggle /></header>
 
       <section className="org-hero">
         <div className="org-hero-art">

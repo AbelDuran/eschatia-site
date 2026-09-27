@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import ThemeToggle from "@/app/components/theme-toggle";
 import { notFound } from "next/navigation";
 import races from "../../data/races.json";
 
@@ -26,7 +27,7 @@ export default async function RacePage({ params }: PageProps<"/races/[slug]">) {
       <header className="site-header">
         <Link className="brand" href="/"><span className="brand-star">✦</span><span>ESCHATIA</span><small>LA FRONTIER</small></Link>
         <Link className="text-link" href="/#races">← Все расы</Link>
-      </header>
+      <ThemeToggle /></header>
       <section className="race-hero">
         <div>
           <p className="section-label">Народы Фарельвейта</p>
