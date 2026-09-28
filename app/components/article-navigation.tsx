@@ -7,7 +7,7 @@ export default function ArticleNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const [scroll, setScroll] = useState({ visible: false, progress: 0 });
-  const isArticle = /^\/(countries|characters|organizations|races)\//.test(pathname) || pathname === "/world";
+  const isArticle = /^\/(countries|characters|organizations|races|news|lore)\//.test(pathname) || pathname === "/world";
 
   useEffect(() => {
     const update = () => {

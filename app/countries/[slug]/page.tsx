@@ -1,3 +1,6 @@
+import { articleRecord, visible } from "@/lib/public-content";
+import PublicArticle from "@/app/components/public-article";
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import ThemeToggle from "@/app/components/theme-toggle";
 import Image from "next/image";
@@ -224,6 +227,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const record=await articleRecord("countries",slug);
+  if(record)return {title:visible(record)?record.title+" — Eschatia":"Материал не найден",description:visible(record)?record.summary:undefined};
   const country = countries[slug as keyof typeof countries];
   if (!country) return { title: "Страница не найдена" };
   return {
@@ -242,6 +247,9 @@ const randomText = [
 
 export default async function CountryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const record=await articleRecord("countries",slug);
+  if(record&&!visible(record))notFound();
+  if(record&&(record.version>1||!Object.hasOwn(countries,slug)))return <PublicArticle article={record}/>;
   const country = countries[slug as keyof typeof countries];
   if (!country) notFound();
 
@@ -404,7 +412,7 @@ export default async function CountryPage({ params }: { params: Promise<{ slug: 
             <Image src={countryData.housesImage} alt={`Особенности ${country.name}`} fill sizes="(max-width: 1200px) 100vw, 46vw" style={{ objectFit: slug === "jospiora" ? "contain" : "cover" }} />
           </div>
         ) : null}
-        <div className="house-list">
+        <div className={slug === "nocturn" ? "house-list nocturn-features" : "house-list"}>
           {isDetailed && countryData.features ? (
             countryData.features.map((feature: string, index: number) => {
               let featureName = "Характеристика";

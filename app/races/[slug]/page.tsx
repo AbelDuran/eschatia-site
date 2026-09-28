@@ -1,3 +1,6 @@
+import { articleRecord, visible } from "@/lib/public-content";
+import PublicArticle from "@/app/components/public-article";
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,12 +16,17 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/races/[slug]">): Promise<Metadata> {
   const { slug } = await params;
+  const record=await articleRecord("races",slug);
+  if(record)return {title:visible(record)?record.title+" — Eschatia":"Материал не найден",description:visible(record)?record.summary:undefined};
   const race = races.find((entry) => entry.slug === slug);
   return { title: race ? `${race.name} — Eschatia` : "Раса не найдена", description: race?.summary };
 }
 
 export default async function RacePage({ params }: PageProps<"/races/[slug]">) {
   const { slug } = await params;
+  const record=await articleRecord("races",slug);
+  if(record&&!visible(record))notFound();
+  if(record&&(record.version>1||!races.some(entry=>entry.slug===slug)))return <PublicArticle article={record}/>;
   const race = races.find((entry) => entry.slug === slug);
   if (!race) notFound();
 

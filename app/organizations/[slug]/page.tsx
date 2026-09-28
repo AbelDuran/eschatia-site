@@ -1,3 +1,6 @@
+import { articleRecord, visible } from "@/lib/public-content";
+import PublicArticle from "@/app/components/public-article";
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import ThemeToggle from "@/app/components/theme-toggle";
 import Image from "next/image";
@@ -470,6 +473,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+  const record=await articleRecord("organizations",slug);
+  if(record)return {title:visible(record)?record.title+" — Eschatia":"Материал не найден",description:visible(record)?record.summary:undefined};
   const org = organizations[slug as keyof typeof organizations];
   if (!org) return { title: "Страница не найдена" };
   return {
@@ -480,6 +485,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function OrganizationPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const record=await articleRecord("organizations",slug);
+  if(record&&!visible(record))notFound();
+  if(record&&(record.version>1||!Object.hasOwn(organizations,slug)))return <PublicArticle article={record}/>;
   const org = organizations[slug as keyof typeof organizations];
   if (!org) notFound();
 

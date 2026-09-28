@@ -1,3 +1,6 @@
+import { articleRecord, visible } from "@/lib/public-content";
+import PublicArticle from "@/app/components/public-article";
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,12 +15,17 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/characters/[slug]">): Promise<Metadata> {
   const { slug } = await params;
+  const record=await articleRecord("characters",slug);
+  if(record)return {title:visible(record)?record.title+" — Eschatia":"Материал не найден",description:visible(record)?record.summary:undefined};
   const character = characters.find((entry) => entry.slug === slug);
   return { title: character ? character.name + " — Eschatia" : "Персонаж не найден", description: character?.shortDescription };
 }
 
 export default async function CharacterPage({ params }: PageProps<"/characters/[slug]">) {
   const { slug } = await params;
+  const record=await articleRecord("characters",slug);
+  if(record&&!visible(record))notFound();
+  if(record&&(record.version>1||!characters.some(entry=>entry.slug===slug)))return <PublicArticle article={record}/>;
   const character = characters.find((entry) => entry.slug === slug);
   if (!character) notFound();
   const { piece, shortDescription, extracts } = character;
