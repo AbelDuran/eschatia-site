@@ -18,7 +18,7 @@ function CharacterFields({data=empty}:{data?:CharacterInput}) { return <>
   <div className="portal-columns"><label>Страна<input name="country" defaultValue={data.country} maxLength={100}/></label><label>Раса<input name="race" defaultValue={data.race} maxLength={100}/></label><label>Организация<input name="organization" defaultValue={data.organization} maxLength={150}/></label></div>
   <label>Изображение: путь из public или HTTPS-ссылка<input name="image" defaultValue={data.image} maxLength={1000} placeholder="/portrait.png"/></label>
   <label>Текст анкеты / статьи<textarea name="body" defaultValue={data.body} maxLength={60000} rows={18} placeholder="Внешность, характер, биография, способности и ограничения…"/></label>
-  <small>Пустая строка разделяет абзацы. HTML не выполняется. Не добавляйте личные данные, которые не должны стать публичными.</small>
+  <small>Для персонажа используйте заголовки «Физические данные», «Характер», «Биография» отдельными абзацами. Под физическими данными пишите «Возраст: 25 лет» и другие характеристики. Пустая строка разделяет абзацы. HTML не выполняется. Не добавляйте личные данные, которые не должны стать публичными.</small>
   </>; }
 const readFields=(f:FormData):CharacterInput=>Object.fromEntries(Object.keys(empty).map(k=>[k,String(f.get(k)||"")])) as CharacterInput;
 export function ApplicationForm({application,character}:{application?:Application;character?:Article}) {
