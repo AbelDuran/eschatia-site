@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-html-link-for-pages -- OAuth routes require document navigation, not RSC prefetch. */
 import Link from "next/link";
+import { loginErrors } from "@/lib/discord-oauth";
 import { authConfigured, currentUser } from "@/lib/auth";
 import { database } from "@/lib/database";
 import { Application, Article, statusNames } from "@/lib/models";
@@ -8,7 +9,7 @@ import { ActionButton, ApplicationForm, SettingsForm } from "@/app/components/po
 
 export default async function AccountPage({searchParams}:{searchParams:Promise<{error?:string}>}) {
   const user=await currentUser();const {error}=await searchParams;
-  if(!user) return <PortalShell title="Личный кабинет"><section className="portal-panel"><h2>Ваша история в Эсхатии</h2><p>Один Discord-аккаунт — один персонаж. Здесь вы сможете подготовить анкету и обсудить её с администрацией.</p>{error&&<p role="alert">{error==="setup"?"Вход пока не подключён.":"Вход не завершён. Попробуйте ещё раз."}</p>}{authConfigured()?<a className="button" href="/auth/discord">Войти через Discord ↗</a>:<p className="portal-notice">Кабинет готовится к открытию. Вход через Discord появится после подключения сервера.</p>}<p>Мы получаем идентификатор, имя и аватар Discord. Пароли Discord сайт не получает. Анкета до одобрения и её обсуждение доступны только вам и администрации.</p></section></PortalShell>;
+  if(!user) return <PortalShell title="Личный кабинет"><section className="portal-panel"><h2>Ваша история в Эсхатии</h2><p>Один Discord-аккаунт — один персонаж. Здесь вы сможете подготовить анкету и обсудить её с администрацией.</p>{error&&<p role="alert">{loginErrors[error] || "Вход не завершён. Попробуйте ещё раз."}</p>}{authConfigured()?<a className="button" href="/auth/discord">Войти через Discord ↗</a>:<p className="portal-notice">Кабинет готовится к открытию. Вход через Discord появится после подключения сервера.</p>}<p>Мы получаем идентификатор, имя и аватар Discord. Пароли Discord сайт не получает. Анкета до одобрения и её обсуждение доступны только вам и администрации.</p></section></PortalShell>;
   const db=database();
   const [[application],[character],notifications,sessions]=await Promise.all([
     db.query<Application>("SELECT * FROM applications WHERE owner_id=$1",[user.id]),
