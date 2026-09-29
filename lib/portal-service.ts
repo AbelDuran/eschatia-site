@@ -78,7 +78,7 @@ export async function mutate(db: Database, actor: Actor, input: unknown) {
         const [character] = await tx.query<Article>("SELECT * FROM articles WHERE owner_id=$1 AND kind='characters' AND status='frozen' FOR UPDATE", [actor.id]);
         if (character) throw new DomainError("Персонаж заморожен. Обратитесь к администрации.",409);
         const parsed = characterInput.parse(app.data);
-        if (parsed.body.length<100 || !parsed.race || !parsed.country || parsed.summary.length<10) throw new DomainError("Укажите страну, расу, краткое описание и анкету не короче 100 символов.");
+        if ((parsed.body+JSON.stringify(parsed.details||{})).length<100 || !parsed.race || !parsed.country || parsed.summary.length<10) throw new DomainError("Укажите страну, расу, краткое описание и анкету не короче 100 символов.");
         await tx.query("UPDATE applications SET status='submitted',submitted_at=now(),version=version+1,updated_at=now() WHERE id=$1",[id]);
         await tx.query("INSERT INTO application_versions(application_id,data) VALUES($1,$2::text::jsonb)",[id,JSON.stringify(parsed)]);
         await audit(tx,actor,"application.submit",id);
@@ -115,6 +115,7 @@ export async function mutate(db: Database, actor: Actor, input: unknown) {
           }
           await tx.query("UPDATE applications SET article_id=$2 WHERE id=$1",[id,articleId]);
         }
+        if (decision==="approved" && app.data.details) await tx.query("UPDATE articles SET details=$2::text::jsonb WHERE id=(SELECT article_id FROM applications WHERE id=$1)",[id,JSON.stringify({...app.data.details})]);
         await tx.query("UPDATE applications SET status=$2,version=version+1,updated_at=now() WHERE id=$1",[id,decision]);
         await tx.query("INSERT INTO comments(application_id,author_id,body) VALUES($1,$2,$3)",[id,actor.id,`${decision==='approved'?'Одобрено':decision==='changes'?'Нужны исправления':'Отклонено'}: ${reason}`]);
         await notify(tx,app.owner_id,"Администрация рассмотрела вашу анкету.",`/account/applications/${id}`);
@@ -134,10 +135,12 @@ export async function mutate(db: Database, actor: Actor, input: unknown) {
           if (article.owner_id && article.owner_id!==data.owner_id) throw new DomainError("Нельзя перепривязать действующего персонажа через редактор.");
           await tx.query("INSERT INTO revisions(article_id,actor_id,snapshot) VALUES($1,$2,$3::text::jsonb)",[id,actor.id,JSON.stringify(article)]);
           await tx.query("UPDATE articles SET title=$2,summary=$3,body=$4,image=$5,country=$6,organization=$7,race=$8,owner_id=$9,related=$10::text::jsonb,version=version+1,updated_at=now() WHERE id=$1",[id,data.title,data.summary,data.body,data.image,data.country,data.organization,data.race,data.owner_id,JSON.stringify(data.related)]);
+          if(data.details) await tx.query("UPDATE articles SET details=$2::text::jsonb WHERE id=$1",[id,JSON.stringify(data.details)]);
           await audit(tx,actor,"article.edit",id);
           return { id,message:"Материал сохранён." };
         }
         const [article]=await tx.query<{id:string}>("INSERT INTO articles(kind,slug,title,summary,body,image,country,organization,race,owner_id,related) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::text::jsonb) RETURNING id",[data.kind,data.slug,data.title,data.summary,data.body,data.image,data.country,data.organization,data.race,data.owner_id,JSON.stringify(data.related)]);
+        if(data.details) await tx.query("UPDATE articles SET details=$2::text::jsonb WHERE id=$1",[article.id,JSON.stringify(data.details)]);
         await audit(tx,actor,"article.create",article.id);
         return {id:article.id,message:"Черновик материала создан."};
       }
@@ -148,7 +151,7 @@ export async function mutate(db: Database, actor: Actor, input: unknown) {
         if (!article || article.version!==version) throw new DomainError("Материал уже изменён.",409);
         if (status==="frozen" && (article.kind!=="characters" || article.status!=="published")) throw new DomainError("Заморозить можно опубликованного персонажа.");
         if (status==="deleted" && confirmation!==article.title) throw new DomainError("Для удаления введите точное название.");
-        if (status==="published" && article.body.length<20) throw new DomainError("Добавьте текст материала перед публикацией.");
+        if (status==="published" && (article.body+JSON.stringify(article.details||{})).length<20) throw new DomainError("Добавьте текст материала перед публикацией.");
         await tx.query("INSERT INTO revisions(article_id,actor_id,snapshot) VALUES($1,$2,$3::text::jsonb)",[id,actor.id,JSON.stringify(article)]);
         await tx.query("UPDATE articles SET status=$2,version=version+1,updated_at=now() WHERE id=$1",[id,status]);
         await audit(tx,actor,`article.${status}`,id);

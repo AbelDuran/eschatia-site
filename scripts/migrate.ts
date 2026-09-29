@@ -1,9 +1,10 @@
 import { loadEnvConfig } from "@next/env";
 import { readFile } from "node:fs/promises";
-import { database } from "../lib/database";
+import { database, databaseConfigured } from "../lib/database";
 import { seed } from "../lib/seed";
 loadEnvConfig(process.cwd());
 async function main(){
+  if(process.argv.includes("--if-configured")&&!databaseConfigured()){console.log("Локальная сборка без базы: миграция пропущена.");return;}
   const db=database();
   await db.transaction(async tx=>{
     await tx.query("SELECT pg_advisory_xact_lock(483719)");

@@ -1,0 +1,206 @@
+{
+  "asterioclysm": {
+    "category": "catastrophe",
+    "tags": [
+      "Астериоклизм"
+    ]
+  },
+  "black-fever": {
+    "category": "terms",
+    "tags": [
+      "Чёрная лихорадка"
+    ]
+  },
+  "spell-learning": {
+    "category": "rules",
+    "tags": [
+      "Изучение заклинаний"
+    ]
+  },
+  "corruption-laws": {
+    "category": "rules",
+    "tags": [
+      "Законы Скверны"
+    ]
+  },
+  "dust-cost": {
+    "category": "rules",
+    "tags": [
+      "Потолок и затраты Пыли"
+    ]
+  },
+  "dust-recovery": {
+    "category": "rules",
+    "tags": [
+      "Восполнение Пыли"
+    ]
+  },
+  "corruption-pool": {
+    "category": "rules",
+    "tags": [
+      "Сквернопул"
+    ]
+  },
+  "techniques": {
+    "category": "rules",
+    "tags": [
+      "Классификация техник"
+    ]
+  },
+  "soul": {
+    "category": "terms",
+    "tags": [
+      "Теория души"
+    ]
+  },
+  "dust": {
+    "category": "terms",
+    "tags": [
+      "Природа Скверны и Пыли"
+    ]
+  },
+  "cryodenism": {
+    "category": "religions",
+    "tags": [
+      "Криоденизм"
+    ]
+  },
+  "dark-liturgy": {
+    "category": "religions",
+    "tags": [
+      "Литургия тьмы"
+    ]
+  },
+  "benefactor": {
+    "category": "religions",
+    "tags": [
+      "Верховный Благодетель"
+    ]
+  },
+  "lyaorin": {
+    "category": "religions",
+    "tags": [
+      "Ляорин"
+    ]
+  },
+  "osair": {
+    "category": "religions",
+    "tags": [
+      "Осаир"
+    ]
+  },
+  "pilgrimage-church": {
+    "category": "religions",
+    "tags": [
+      "Церковь Странствий"
+    ]
+  },
+  "fate": {
+    "category": "rules",
+    "tags": [
+      "Особенности и Нити Судьбы"
+    ]
+  },
+  "runes": {
+    "category": "rules",
+    "tags": [
+      "Рунология"
+    ]
+  },
+  "alchemy": {
+    "category": "rules",
+    "tags": [
+      "Алхимия"
+    ]
+  },
+  "sudros-forces": {
+    "category": "wars",
+    "tags": [
+      "Политические силы Судроса"
+    ]
+  },
+  "physical-metrics": {
+    "category": "rules",
+    "tags": [
+      "Физические показатели"
+    ]
+  },
+  "languages": {
+    "category": "rules",
+    "tags": [
+      "Языки и наречия"
+    ]
+  },
+  "chronology": {
+    "category": "chronology",
+    "tags": [
+      "Хронология"
+    ]
+  },
+  "farelveit": {
+    "category": "geography",
+    "tags": [
+      "Фарельвейт"
+    ]
+  },
+  "first": {
+    "category": "people",
+    "tags": [
+      "Первая"
+    ]
+  },
+  "expedition": {
+    "category": "events",
+    "tags": [
+      "Экспедиция в Новые Земли"
+    ]
+  },
+  "sun-pendant": {
+    "category": "items",
+    "tags": [
+      "Кулон Солнца"
+    ]
+  },
+  "mirabel": {
+    "category": "deities",
+    "tags": [
+      "Мирабель"
+    ]
+  },
+  "talurus": {
+    "category": "deities",
+    "tags": [
+      "Талурус"
+    ]
+  },
+  "viator": {
+    "category": "deities",
+    "tags": [
+      "Виатор"
+    ]
+  },
+  "mortis": {
+    "category": "deities",
+    "tags": [
+      "Мортис"
+    ]
+  },
+  "verdict": {
+    "category": "deities",
+    "tags": [
+      "Вердикт"
+    ]
+  },
+  "alma": {
+    "category": "deities",
+    "tags": [
+      "Алма"
+    ]
+  },
+  "psyche": {
+    "category": "deities",
+    "tags": [
+      "Психея"
+    ]
+  }
+}

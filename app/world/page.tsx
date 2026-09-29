@@ -1,23 +1,7 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-import ThemeToggle from "@/app/components/theme-toggle";
-
-export const metadata: Metadata = { title: "Архив мира — Eschatia", description: "Астериоклизм, Скверна и история Фарельвейта." };
-
-export default function WorldPage() {
-  return <main>
-    <header className="site-header"><Link className="brand" href="/"><span className="brand-star">✦</span><span>ESCHATIA</span><small>LA FRONTIER</small></Link><Link className="text-link" href="/">← На главную</Link><ThemeToggle /></header>
-    <section className="world-archive section">
-      <p className="section-label">1249 ГОД ОТ КАТАСТРОФЫ</p>
-      <h1>Архив мира</h1>
-      <p className="archive-lead">История Фарельвейта, его народов и сил. Архив будет пополняться новыми статьями.</p>
-      <nav className="archive-links" aria-label="Разделы архива"><Link href="/#world">Государства →</Link><Link href="/#races">Расы →</Link><Link href="/#organizations">Организации →</Link></nav>
-      <article className="race-copy">
-        <section><h2>Астериоклизм</h2><p>Ровно 1249 лет назад мир содрогнулся от катастрофы, вошедшей в хроники как Астериоклизм, или день разбитого зеркала. До этого волшебство было чистым, предсказуемым и податливым. Но небеса надломились, проливая ядовитый свет: источник магии был осквернён, извращён и разбит. Чистая энергия переродилась в Пыль.</p></section>
-        <section><h2>Осквернённые</h2><p>Скверна дарует могущество, неизбежно принося болезненные последствия. Взамен она шаг за шагом захватывает душу осквернённого. Пользователи магии стали жертвами собственного ремесла: теперь их называют Проклятыми, или Осквернёнными.</p><p>Плоть горит от перенапряжения, энергетические каналы покрываются трещинами от истощения, а разум погружается в безумие, если маг пренебрегает своими пределами.</p></section>
-        <section><h2>Первая и Эндшпиль</h2><p>Основательница Шабаша ведьм, известная как Первая, попыталась удержать распадающийся миропорядок. После этого она пропала без вести, оставив обрывки философских записей.</p><p>Слухи утверждают, что Первая отправилась в Эндшпиль, надеясь остановить катастрофу. Где находится этот шпиль и существует ли он в привычном понимании пространства, неизвестно.</p></section>
-        <section><h2>Лик нового мира</h2><p>За минувшие 1249 лет люди и другие народы приспособились к жестокому укладу, создали государства и научились выживать под гнётом новых угроз. Скверна стала постоянной частью мира, отравляющей всё живое вокруг сильных осквернённых.</p><p>Крупицы истории хранятся в архивах, а последствия катастрофы остаются на коже каждого, кто осмелится призвать Пыль.</p></section>
-      </article>
-    </section>
-  </main>;
-}
+import PortalShell from "@/app/components/portal-shell";
+import { archiveCategories } from "@/lib/content-details";
+import { publicIndex } from "@/lib/public-content";
+export const dynamic="force-dynamic";
+export const metadata={title:"Архив мира — ESCHATIA LA FRONTIER",description:"История, страны, религии и правила Фарельвейта."};
+export default async function WorldPage(){const entries=await publicIndex();const categories=[...Object.entries({countries:"Государства",races:"Расы",organizations:"Организации",characters:"Персонажи"}).map(([k,n])=>({name:n,href:"/library?kind="+k,count:entries.filter(a=>a.kind===k).length})),...Object.entries(archiveCategories).map(([k,n])=>({name:n,href:"/library?kind=lore&category="+k,count:entries.filter(a=>a.kind==="lore"&&a.details?.category===k).length}))];return <PortalShell title="Архив мира"><p className="article-lead">Фарельвейт, 1249 год от Катастрофы. История мира, его народы и законы.</p><nav className="portal-actions"><Link href="/library">Поиск по всем материалам →</Link><Link href="/start">Как начать играть →</Link><Link href="/lore/asterioclysm">Астериоклизм →</Link></nav><div className="archive-grid">{categories.map(c=><Link className="archive-card" href={c.href} key={c.href}><span className="section-label">{String(c.count).padStart(2,"0")} материалов</span><h2>{c.name}</h2><span className="text-link">Открыть раздел →</span></Link>)}</div><p className="source-note">Основа архива — документ «Eschatia La Frontier». Неполные сведения отмечены в статьях.</p></PortalShell>;}

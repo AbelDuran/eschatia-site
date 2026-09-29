@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { publicIndex } from "@/lib/public-content";
 import { kindNames } from "@/lib/models";
+import { archiveCategories } from "@/lib/content-details";
+import { searchArticles } from "@/lib/search";
 import PortalShell from "@/app/components/portal-shell";
 export const dynamic="force-dynamic";
-export default async function Library({searchParams}:{searchParams:Promise<{kind?:string}>}){const {kind}=await searchParams;const entries=(await publicIndex()).filter(a=>!kind||a.kind===kind);return <PortalShell title={kindNames[kind||""]||"Архив материалов"}><nav className="portal-actions"><Link href="/library">Все</Link>{Object.entries(kindNames).map(([k,n])=><Link key={k} href={`/library?kind=${k}`}>{n}</Link>)}</nav><div className="related-grid">{entries.map(a=><Link className="related-card" href={`/${a.kind}/${a.slug}`} key={`${a.kind}/${a.slug}`}><small>{kindNames[a.kind]}</small><h2>{a.title}</h2><p>{a.summary}</p></Link>)}</div>{!entries.length&&<p>Публикаций пока нет.</p>}</PortalShell>;}
-
+export const metadata={title:"Поиск и архив — ESCHATIA LA FRONTIER"};
+export default async function Library({searchParams}:{searchParams:Promise<{kind?:string;category?:string;q?:string;page?:string}>}){
+ const params=await searchParams;const q=(params.q||"").slice(0,200);const kind=params.kind||"";const category=params.category||"";
+ const entries=searchArticles(await publicIndex(),q,kind,category);const pages=Math.max(1,Math.ceil(entries.length/24));const page=Math.min(pages,Math.max(1,Number.parseInt(params.page||"1")||1));
+ const href=(p:number)=>"/library?"+new URLSearchParams({q,kind,category,page:String(p)});
+ return <PortalShell title="Поиск по архиву"><form action="/library" className="archive-search" role="search"><label>Поиск по названиям, текстам и тегам<input type="search" name="q" defaultValue={q} maxLength={200} placeholder="Имя, место, событие…"/></label><div className="search-options"><label>Раздел<select name="kind" defaultValue={kind}><option value="">Все разделы</option>{Object.entries(kindNames).map(([k,n])=><option key={k} value={k}>{n}</option>)}</select></label><label>Категория лора<select name="category" defaultValue={category}><option value="">Все категории</option>{Object.entries(archiveCategories).map(([k,n])=><option key={k} value={k}>{n}</option>)}</select></label><button className="button">Найти</button><Link href="/library">Сбросить</Link></div></form><p className="result-count">Найдено: {entries.length}</p><div className="archive-grid">{entries.slice((page-1)*24,page*24).map(a=><Link className="archive-card" href={"/"+a.kind+"/"+a.slug} key={a.kind+"/"+a.slug}><small>{kindNames[a.kind]}{a.details?.category&&" / "+(archiveCategories[a.details.category]||a.details.category)}</small><h2>{a.title}</h2><p>{a.summary}</p>{a.status==="frozen"&&<span className="frozen-badge">❄ Заморожен</span>}<span className="text-link">Открыть статью →</span></Link>)}</div>{!entries.length&&<p>Совпадений нет. Попробуйте другое слово или уберите фильтры.</p>}{pages>1&&<nav className="portal-actions" aria-label="Страницы поиска">{page>1&&<Link href={href(page-1)}>← Назад</Link>}<span>{page} / {pages}</span>{page<pages&&<Link href={href(page+1)}>Далее →</Link>}</nav>}</PortalShell>;
+}

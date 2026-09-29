@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ContentFields, readDetails } from "./content-fields";
+import { defaultDetails } from "@/lib/content-defaults";
 import { Application, Article, CharacterInput, kinds, kindNames, statusNames } from "@/lib/models";
 
 export function MutationForm({action,children,makeData,onSuccess}:{action:string;children:React.ReactNode;makeData:(f:FormData)=>unknown;onSuccess?:(result:Record<string,unknown>)=>void}) {
@@ -18,20 +20,20 @@ function CharacterFields({data=empty}:{data?:CharacterInput}) { return <>
   <div className="portal-columns"><label>Страна<input name="country" defaultValue={data.country} maxLength={100}/></label><label>Раса<input name="race" defaultValue={data.race} maxLength={100}/></label><label>Организация<input name="organization" defaultValue={data.organization} maxLength={150}/></label></div>
   <label>Изображение: путь из public или HTTPS-ссылка<input name="image" defaultValue={data.image} maxLength={1000} placeholder="/portrait.png"/></label>
   <label>Текст анкеты / статьи<textarea name="body" defaultValue={data.body} maxLength={60000} rows={18} placeholder="Внешность, характер, биография, способности и ограничения…"/></label>
-  <small>Для персонажа используйте заголовки «Физические данные», «Характер», «Биография» отдельными абзацами. Под физическими данными пишите «Возраст: 25 лет» и другие характеристики. Пустая строка разделяет абзацы. HTML не выполняется. Не добавляйте личные данные, которые не должны стать публичными.</small>
+  <small>Для персонажа удобнее заполнить отдельные поля выше. Здесь можно оставить прежнюю анкету или основной текст статьи. Пустая строка разделяет абзацы; HTML не выполняется.</small>
   </>; }
-const readFields=(f:FormData):CharacterInput=>Object.fromEntries(Object.keys(empty).map(k=>[k,String(f.get(k)||"")])) as CharacterInput;
+const readFields=(f:FormData):CharacterInput=>({...empty,...Object.fromEntries(Object.keys(empty).map(k=>[k,String(f.get(k)||"")]))});
 export function ApplicationForm({application,character}:{application?:Application;character?:Article}) {
-  return <MutationForm action="saveApplication" makeData={f=>({version:application?.version||0,data:readFields(f)})}><CharacterFields data={application?.data || character}/><button className="button" type="submit">Сохранить черновик</button></MutationForm>;
+  return <MutationForm action="saveApplication" makeData={f=>({version:application?.version||0,data:{...readFields(f),details:readDetails(f,application?.data.details||{...defaultDetails("characters",character?.slug||""),...character?.details})}})}><ContentFields kind="characters" data={application?.data.details||{...defaultDetails("characters",character?.slug||""),...character?.details}}/><CharacterFields data={application?.data || character}/><button className="button" type="submit">Сохранить черновик</button></MutationForm>;
 }
 export function CommentForm({id}:{id:string}) {const [key,setKey]=useState(0);return <MutationForm key={key} action="comment" makeData={f=>({id,body:f.get("body")})} onSuccess={()=>setKey(k=>k+1)}><label>Сообщение<textarea name="body" required maxLength={5000} rows={4}/></label><button className="button">Отправить сообщение</button></MutationForm>;}
 export function ReviewForm({app}:{app:Application}) {return <MutationForm action="review" makeData={f=>({id:app.id,version:app.version,decision:f.get("decision"),reason:f.get("reason")})}><label>Решение<select name="decision"><option value="changes">Вернуть на исправление</option><option value="approved">Одобрить и опубликовать</option><option value="rejected">Отклонить</option></select></label><label>Обоснование<textarea required minLength={5} maxLength={5000} name="reason"/></label><button className="button">Подтвердить решение</button></MutationForm>;}
 export function ArticleEditor({article}:{article?:Article}) {
-  const router=useRouter();const [preview,setPreview]=useState<CharacterInput|null>(null);
-  return <><MutationForm action="saveArticle" makeData={f=>({id:article?.id,version:article?.version||0,data:{...readFields(f),kind:f.get("kind"),slug:f.get("slug"),owner_id:f.get("owner_id")||null,related:String(f.get("related")||"").split(/\s+/).filter(Boolean)}})} onSuccess={r=>{if(!article)router.push(`/admin/articles/${r.id}`);}}>
-    <label>Тип<select name="kind" defaultValue={article?.kind||"news"}>{kinds.map(k=><option key={k} value={k}>{kindNames[k]}</option>)}</select></label>
+  const router=useRouter();const [kind,setKind]=useState(article?.kind||"news");const details={...defaultDetails(article?.kind||"news",article?.slug||""),...article?.details};const [preview,setPreview]=useState<CharacterInput|null>(null);
+  return <><MutationForm action="saveArticle" makeData={f=>({id:article?.id,version:article?.version||0,data:{...readFields(f),details:readDetails(f,details),kind:f.get("kind"),slug:f.get("slug"),owner_id:f.get("owner_id")||null,related:String(f.get("related")||"").split(/\s+/).filter(Boolean)}})} onSuccess={r=>{if(!article)router.push(`/admin/articles/${r.id}`);}}>
+    <label>Тип<select name="kind" value={kind} onChange={e=>setKind(e.target.value as typeof kind)}>{kinds.map(k=><option key={k} value={k}>{kindNames[k]}</option>)}</select></label>
     <label>Адрес (латиница, цифры, дефис)<input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxLength={100} defaultValue={article?.slug} readOnly={Boolean(article)}/></label>
-    <CharacterFields data={article}/>
+    <ContentFields key={kind} kind={kind} data={details}/><CharacterFields data={article}/>
     <label>Discord ID владельца персонажа (необязательно)<input name="owner_id" pattern="[0-9]{17,20}" defaultValue={article?.owner_id||""}/></label>
     <label>Связанные страницы — по одному адресу в строке<textarea name="related" defaultValue={article?.related.join("\n")} placeholder="/countries/jospiora" rows={3}/></label>
     <div className="portal-actions"><button type="button" className="button" onClick={e=>setPreview(readFields(new FormData(e.currentTarget.form!)))}>Предпросмотр</button><button className="button">{article?"Сохранить изменения":"Создать черновик"}</button></div>

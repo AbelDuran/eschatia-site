@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS articles (
   UNIQUE(kind,slug), CHECK (status <> 'frozen' OR kind = 'characters'), CHECK (owner_id IS NULL OR kind = 'characters')
 );
 CREATE UNIQUE INDEX IF NOT EXISTS one_character_per_user ON articles(owner_id) WHERE kind='characters' AND status <> 'deleted';
+ALTER TABLE articles ADD COLUMN IF NOT EXISTS details jsonb NOT NULL DEFAULT '{}';
 CREATE TABLE IF NOT EXISTS applications (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(), owner_id text NOT NULL UNIQUE REFERENCES users(id),
   article_id uuid REFERENCES articles(id),

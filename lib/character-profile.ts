@@ -1,8 +1,10 @@
 import characters from "../app/data/characters.json";
 import type { Article } from "./models";
+import { defaultDetails } from "./content-defaults";
 
 export function characterProfile(record: Article) {
   const original = characters.find(c => c.slug === record.slug);
+  const details = {...defaultDetails("characters",record.slug),...record.details};
   const physical: string[][] = [];
   const personality: string[] = [];
   const extracts: string[] = [];
@@ -27,7 +29,11 @@ export function characterProfile(record: Article) {
   return {
     name: record.title, image: record.image, country: record.country || "Не указана",
     group: record.organization || "Без организации", shortDescription: record.summary,
-    role: original?.role || "", piece: original?.piece || "Персонаж", mark: original?.mark || "✦",
-    application: original?.application || "", physical, personality, extracts,
+    role: details.role || original?.role || "", piece: details.sector || original?.piece || "Персонаж", mark: original?.mark || "✦",
+    application: details.application || original?.application || "", physical: details.physical?.length ? details.physical.map(p=>[p.label,p.value]) : physical,
+    personality: details.personality ? details.personality.split(/\n\s*\n/) : personality,
+    extracts: details.biography ? details.biography.split(/\n\s*\n/) : extracts,
+    nickname:details.nickname||"",age:details.age||"",estate:details.estate||"",languages:details.languages||[],
+    features:details.features||"",abilities:details.abilities||"",extra:details.extra||"",
   };
 }

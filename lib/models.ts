@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { detailsInput, type ContentDetails } from "./content-details";
 
 export const kinds = ["news", "characters", "countries", "organizations", "races", "lore"] as const;
 export const kindNames: Record<string, string> = { news: "Новости", characters: "Персонажи", countries: "Страны", organizations: "Организации", races: "Расы", lore: "Мировой архив" };
@@ -10,6 +11,7 @@ export type Article = {
   image: string; country: string; organization: string; race: string;
   status: "draft" | "published" | "frozen" | "deleted"; owner_id: string | null;
   related: string[]; version: number; created_at: string; updated_at: string;
+  details?: ContentDetails;
 };
 export type Application = {
   id: string; owner_id: string; article_id: string | null; status: "draft" | "submitted" | "changes" | "approved" | "rejected";
@@ -24,6 +26,7 @@ export const characterInput = z.object({
   title: z.string().trim().min(2).max(120), summary: z.string().trim().max(600),
   body: z.string().trim().max(60000), image: imageInput,
   country: z.string().trim().max(100), organization: z.string().trim().max(150), race: z.string().trim().max(100),
+  details: detailsInput.optional(),
 });
 export type CharacterInput = z.infer<typeof characterInput>;
 export const articleInput = characterInput.extend({
