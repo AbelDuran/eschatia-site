@@ -1,4 +1,7 @@
 import "server-only";
+import { createHash } from "node:crypto";
+import legacyHashes from "../app/data/country-legacy-hashes.json";
+import { countryBanners } from "./country-banners";
 
 import { database, databaseConfigured } from "./database";
 import { Article, Kind } from "./models";
@@ -10,13 +13,14 @@ import { baseArticles } from "./seed";
 import type { ContentDetails } from "./content-details";
 import { defaultDetails } from "./content-defaults";
 
-const enrich = (a: Article): Article => ({
-  ...a,
-  details: {
-    ...defaultDetails(a.kind, a.slug),
-    ...a.details,
-  },
-});
+export function enrichArticle(a: Article): Article {
+  const unchanged = a.kind === "countries" && (legacyHashes as Record<string,string>)[a.slug] === createHash("sha256").update(a.body).digest("hex");
+  const corrected = unchanged ? baseArticles.find(b => b.kind === a.kind && b.slug === a.slug) : undefined;
+  const iso = (value: string) => { const date=new Date(value);return Number.isNaN(date.getTime())?"":date.toISOString(); };
+  const defaultImage=a.kind==="countries"&&a.image===baseArticles.find(b=>b.kind===a.kind&&b.slug===a.slug)?.image;
+  return {...a,image:defaultImage?countryBanners[a.slug]||a.image:a.image,body:corrected?.body??a.body,created_at:iso(a.created_at),updated_at:iso(a.updated_at),details:{...defaultDetails(a.kind,a.slug),...a.details}};
+}
+const enrich = enrichArticle;
 
 /**
  * Преобразует дату из БД/JSON в timestamp.

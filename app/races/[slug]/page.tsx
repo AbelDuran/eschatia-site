@@ -17,9 +17,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/races/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const record=await articleRecord("races",slug);
-  if(record)return {title:visible(record)?record.title+" — Eschatia":"Материал не найден",description:visible(record)?record.summary:undefined};
+  if(record)return {title:visible(record)?record.title+" — ESCHATIA LA FRONTIER":"Материал не найден",description:visible(record)?record.summary:undefined};
   const race = races.find((entry) => entry.slug === slug);
-  return { title: race ? `${race.name} — Eschatia` : "Раса не найдена", description: race?.summary };
+  return { title: race ? `${race.name} — ESCHATIA LA FRONTIER` : "Раса не найдена", description: race?.summary };
 }
 
 export default async function RacePage({ params }: PageProps<"/races/[slug]">) {

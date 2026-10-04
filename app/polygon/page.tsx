@@ -3,7 +3,7 @@ import Link from "next/link";
 import ThemeToggle from "@/app/components/theme-toggle";
 import styles from "./polygon.module.css";
 
-export const metadata: Metadata = { title: "Полигон шрифтов — Eschatia" };
+export const metadata: Metadata = { title: "Полигон шрифтов — ESCHATIA LA FRONTIER" };
 
 const fonts = ["Courier New"]
   .flatMap((family) => [400, 700].map((weight) => ({ family, weight })));

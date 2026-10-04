@@ -23,14 +23,15 @@ export function characterProfile(record: Article) {
     } else if (section === "personality") personality.push(paragraph);
     else extracts.push(paragraph);
   }
-  const raceRow = physical.find(row => row[0].toLowerCase() === "раса");
+  const displayPhysical = details.physical?.length ? details.physical.map(p=>[p.label,p.value]) : physical;
+  const raceRow = displayPhysical.find(row => row[0].toLowerCase() === "раса");
   if (raceRow && record.race) raceRow[1] = record.race;
-  if (!physical.length && record.race) physical.push(["Раса", record.race]);
+  if (!displayPhysical.length && record.race) displayPhysical.push(["Раса", record.race]);
   return {
     name: record.title, image: record.image, country: record.country || "Не указана",
     group: record.organization || "Без организации", shortDescription: record.summary,
     role: details.role || original?.role || "", piece: details.sector || original?.piece || "Персонаж", mark: original?.mark || "✦",
-    application: details.application || original?.application || "", physical: details.physical?.length ? details.physical.map(p=>[p.label,p.value]) : physical,
+    application: details.application || original?.application || "", physical: displayPhysical,
     personality: details.personality ? details.personality.split(/\n\s*\n/) : personality,
     extracts: details.biography ? details.biography.split(/\n\s*\n/) : extracts,
     nickname:details.nickname||"",age:details.age||"",estate:details.estate||"",languages:details.languages||[],

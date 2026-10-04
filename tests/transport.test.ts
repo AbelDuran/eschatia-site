@@ -14,16 +14,19 @@ test("PostgreSQL wire driver preserves JSON objects, arrays and revision snapsho
   try {
     const db=database();const owner:Actor={id:process.env.OWNER_DISCORD_ID,name:"Владелец",role:"owner",authenticatedAt:new Date()};
     await db.query("INSERT INTO users(id,name,discord_name) VALUES($1,'Тест','Тест')",[owner.id]);
-    const data={title:"Анкета через драйвер",summary:"Краткое описание для проверки",body:"Подробная биография героя. ".repeat(10),country:"Джоспиора",race:"Человек",organization:"",image:""};
+    const data={title:"Анкета через драйвер",summary:"Краткое описание для проверки",body:"Подробная биография героя. ".repeat(10),country:"Джоспиора",race:"Человек",organization:"",image:"",details:{nickname:"Хронист",languages:["Джоспиорский"],features:"Любопытство",physical:[{label:"Возраст",value:"25 лет"}]}};
     const result=await mutate(db,owner,{action:"saveApplication",data:{version:0,data}});
     const [app]=await db.query<Application>("SELECT * FROM applications WHERE id=$1",[result.id]);
     assert.equal(typeof app.data,"object");assert.equal(app.data.title,data.title);
     await mutate(db,owner,{action:"submitApplication",data:{id:app.id,version:app.version}});
+    await mutate(db,owner,{action:"review",data:{id:app.id,version:app.version+1,decision:"approved",reason:"Анкета соответствует лору"}});
+    const [character]=await db.query<Article>("SELECT * FROM articles WHERE owner_id=$1",[owner.id]);assert.deepEqual(character.details,data.details);
     await mutate(db,owner,{action:"settings",data:{name:"Новое имя",notifications:false,showDiscord:true}});
     const [user]=await db.query<{settings:{notifications:boolean}}>("SELECT settings FROM users WHERE id=$1",[owner.id]);assert.equal(user.settings.notifications,false);
     const created=await mutate(db,owner,{action:"saveArticle",data:{version:0,data:{...data,kind:"news",slug:"wire-news",owner_id:null,related:["/countries/jospiora"]}}});
     const [article]=await db.query<Article>("SELECT * FROM articles WHERE id=$1",[created.id]);assert.deepEqual(article.related,["/countries/jospiora"]);
+    assert.deepEqual(article.details,data.details);
     await mutate(db,owner,{action:"articleStatus",data:{id:article.id,version:article.version,status:"published"}});
-    const [revision]=await db.query<{snapshot:Article}>("SELECT snapshot FROM revisions WHERE article_id=$1",[article.id]);assert.equal(revision.snapshot.title,data.title);
+    const [revision]=await db.query<{snapshot:Article}>("SELECT snapshot FROM revisions WHERE article_id=$1",[article.id]);assert.equal(revision.snapshot.title,data.title);assert.deepEqual(revision.snapshot.details,data.details);
   } finally {await closeDatabase();await socket.stop();await pg.close();}
 });

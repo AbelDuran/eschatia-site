@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { articleRecord, visible } from "@/lib/public-content";
 import { baseArticles } from "@/lib/seed";
+import { countryBanners } from "@/lib/country-banners";
 import { missing } from "@/lib/content-details";
 import catalog from "@/app/data/catalog.json";
 import ThemeToggle from "@/app/components/theme-toggle";
@@ -14,10 +15,9 @@ export async function generateMetadata({params}:PageProps<"/countries/[slug]">):
 export default async function CountryPage({params}:PageProps<"/countries/[slug]">){
  const {slug}=await params;const a=await articleRecord("countries",slug);if(!a||!visible(a))notFound();
  const c=catalog.countryDetails[slug as keyof typeof catalog.countryDetails];const d=a.details||{};
- const banners:Record<string,string>={jospiora:"/jospiora-city.png",denlin:"/denlin-cliff.png",snowind:"/swowwind-arc.jpg",oratris:"/oratris-city.png",sudros:"/sudros-city.png",nocturn:"/nocturn-city.png"};
  const original=baseArticles.find(x=>x.kind==="countries"&&x.slug===slug);
  const edited=!!original&&a.body!==original.body;
- const hero=a.image!==original?.image?a.image:banners[slug]||a.image;
+ const hero=a.image!==original?.image?a.image:countryBanners[slug]||a.image;
  const ruler=d.ruler;const blocks=d.blocks||[];
  return <main className="country-page" id="top"><header className="site-header"><Link className="brand" href="/"><span className="brand-star">✦</span><span>ESCHATIA</span><small>LA FRONTIER</small></Link><Link className="text-link" href="/#world">← Все государства</Link><ThemeToggle/></header>
  <section className="country-hero">{hero&&<Image src={hero} alt={`Пейзаж государства ${a.title}`} fill priority unoptimized={hero.startsWith("https://")} sizes="100vw"/>}<div className="country-hero-shade"/><div className="country-hero-content"><p className="section-label">ГОСУДАРСТВО / {c?.kind||"АРХИВ МИРА"}</p><h1>{a.title}</h1><p>{a.summary}</p></div></section>
