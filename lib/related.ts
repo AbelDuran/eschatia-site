@@ -16,7 +16,7 @@ export async function relatedPages(path:string){
   const entries=await publicIndex();const nodes=entries.map(a=>({...a,path:`/${a.kind}/${a.slug}`}));
   const current=nodes.find(a=>a.path===path);
   const archive=()=>["countries","characters","organizations","races"].flatMap(kind=>{const a=nodes.find(n=>n.kind===kind&&n.path!==path);return a?[{href:a.path,title:a.title,kind:kindNames[a.kind],reason:"Другие материалы архива"}]:[];});
-  if(!current)return archive();
+  if(!current)return [];
   const currentText=`${current.title} ${current.summary} ${current.body} ${current.country}`.toLowerCase();
   const linked=new Set([...(explicit[path]||[]),...current.related]);
   const relatedCountries=nodes.filter(a=>a.kind==="countries"&&(a.title===current.country||currentText.includes(countryStems[a.slug]||a.title.toLowerCase())));

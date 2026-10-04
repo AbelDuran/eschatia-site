@@ -1,3 +1,4 @@
+import {articleMetadata} from "@/lib/article-metadata";
 import { articleRecord, visible } from "@/lib/public-content";
 import PublicArticle from "@/app/components/public-article";
 export const dynamic = "force-dynamic";
@@ -471,17 +472,7 @@ export async function generateStaticParams() {
   return Object.keys(organizations).map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const record=await articleRecord("organizations",slug);
-  if(record)return {title:visible(record)?record.title+" — ESCHATIA LA FRONTIER":"Материал не найден",description:visible(record)?record.summary:undefined};
-  const org = organizations[slug as keyof typeof organizations];
-  if (!org) return { title: "Страница не найдена" };
-  return {
-    title: `${org.name} — ESCHATIA LA FRONTIER`,
-    description: org.description,
-  };
-}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;return articleMetadata(await articleRecord("organizations",slug));}
 
 export default async function OrganizationPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

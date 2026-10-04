@@ -1,3 +1,4 @@
+import {articleMetadata} from "@/lib/article-metadata";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,7 +12,8 @@ import ThemeToggle from "@/app/components/theme-toggle";
 import EntityLinks from "@/app/components/entity-links";
 export const dynamic="force-dynamic";
 export function generateStaticParams(){return catalog.countries.map(({slug})=>({slug}));}
-export async function generateMetadata({params}:PageProps<"/countries/[slug]">):Promise<Metadata>{const {slug}=await params;const a=await articleRecord("countries",slug);return {title:a&&visible(a)?`${a.title} — ESCHATIA LA FRONTIER`:"Государство не найдено",description:a&&visible(a)?a.summary:undefined};}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;return articleMetadata(await articleRecord("countries",slug));}
+
 export default async function CountryPage({params}:PageProps<"/countries/[slug]">){
  const {slug}=await params;const a=await articleRecord("countries",slug);if(!a||!visible(a))notFound();
  const c=catalog.countryDetails[slug as keyof typeof catalog.countryDetails];const d=a.details||{};

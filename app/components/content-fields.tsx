@@ -21,7 +21,9 @@ export function ContentFields({kind,data={}}:{kind:string;data?:ContentDetails})
     {kind==="countries"&&<>
       {short("language","Язык и лингвистическая основа")}{short("faith","Господствующая вера")}{short("faithPath","Страница веры — /lore/…")}
       <fieldset><legend>Правитель</legend>{["name","title","image","body","href"].map((key,i)=><label key={key}>{["Имя","Титул","Изображение правителя","Краткое описание","Ссылка на статью — /lore/…"][i]}<input name={`r.${key}`} defaultValue={data.ruler?.[key as keyof NonNullable<ContentDetails['ruler']>]||""}/></label>)}</fieldset>
-      <h3>Смысловые блоки государства</h3><input type="hidden" name="blockCount" value={blocks.length}/>
+      </>}
+    {["countries","lore","organizations","races","news"].includes(kind)&&<>
+      <h3>Разделы материала</h3>{kind==="lore"&&<button type="button" onClick={()=>setBlocks([...blocks,...["Что это?","Как работает?","Что может игрок?","Ограничения"].map(title=>({title,type:"mechanic",body:""}))].slice(0,30))}>Добавить структуру механики</button>}<input type="hidden" name="blockCount" value={blocks.length}/>
       {blocks.map((b,i)=><fieldset className="content-block-editor" key={i}><legend>Блок {i+1}</legend><label>Название<input name={`b.${i}.title`} required value={b.title} onChange={e=>setBlocks(blocks.map((v,j)=>j===i?{...v,title:e.target.value}:v))}/></label><label>Тип: культура, религия, место…<input name={`b.${i}.type`} value={b.type} onChange={e=>setBlocks(blocks.map((v,j)=>j===i?{...v,type:e.target.value}:v))}/></label><label>Содержание<textarea name={`b.${i}.body`} rows={6} value={b.body} onChange={e=>setBlocks(blocks.map((v,j)=>j===i?{...v,body:e.target.value}:v))}/></label><div className="portal-actions"><button type="button" onClick={()=>setBlocks(blocks.filter((_,j)=>j!==i))}>Убрать блок</button>{i>0&&<button type="button" onClick={()=>{const next=[...blocks];[next[i-1],next[i]]=[next[i],next[i-1]];setBlocks(next);}}>↑ Выше</button>}</div></fieldset>)}
       <button type="button" className="button" disabled={blocks.length>=30} onClick={()=>setBlocks([...blocks,{title:"",type:"",body:""}])}>Добавить блок</button>
     </>}

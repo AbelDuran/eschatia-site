@@ -1,3 +1,4 @@
+import {articleMetadata} from "@/lib/article-metadata";
 import { articleRecord, visible } from "@/lib/public-content";
 import { characterProfile } from "@/lib/character-profile";
 import { database } from "@/lib/database";
@@ -11,7 +12,8 @@ import { notFound } from "next/navigation";
 import characters from "../../data/characters.json";
 export const dynamic = "force-dynamic";
 export function generateStaticParams(){return characters.map(({slug})=>({slug}));}
-export async function generateMetadata({params}:PageProps<"/characters/[slug]">):Promise<Metadata>{const {slug}=await params;const a=await articleRecord("characters",slug);return {title:a&&visible(a)?`${a.title} — ESCHATIA LA FRONTIER`:"Персонаж не найден",description:a&&visible(a)?a.summary:undefined};}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;return articleMetadata(await articleRecord("characters",slug));}
+
 export default async function CharacterPage({params}:PageProps<"/characters/[slug]">){
  const {slug}=await params;const record=await articleRecord("characters",slug);if(!record||!visible(record))notFound();
  const c=characterProfile(record);

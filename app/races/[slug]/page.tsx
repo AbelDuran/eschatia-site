@@ -1,3 +1,4 @@
+import {articleMetadata} from "@/lib/article-metadata";
 import { articleRecord, visible } from "@/lib/public-content";
 import PublicArticle from "@/app/components/public-article";
 export const dynamic = "force-dynamic";
@@ -14,13 +15,7 @@ export function generateStaticParams() {
   return races.map(({ slug }) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: PageProps<"/races/[slug]">): Promise<Metadata> {
-  const { slug } = await params;
-  const record=await articleRecord("races",slug);
-  if(record)return {title:visible(record)?record.title+" — ESCHATIA LA FRONTIER":"Материал не найден",description:visible(record)?record.summary:undefined};
-  const race = races.find((entry) => entry.slug === slug);
-  return { title: race ? `${race.name} — ESCHATIA LA FRONTIER` : "Раса не найдена", description: race?.summary };
-}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const {slug}=await params;return articleMetadata(await articleRecord("races",slug));}
 
 export default async function RacePage({ params }: PageProps<"/races/[slug]">) {
   const { slug } = await params;

@@ -1,0 +1,3 @@
+import Link from "next/link";
+import PortalShell from "./components/portal-shell";
+export default function NotFound(){return <PortalShell title="Архив не найден"><p className="section-label">404 / ЗАПИСЬ ОТСУТСТВУЕТ</p><p>Возможно, материал перемещён или пока недоступен.</p><form action="/library" role="search" className="archive-search"><label>Поиск по архиву<input name="q" type="search" maxLength={200} placeholder="Название, имя, место…"/></label><button className="button">Найти</button></form><nav className="portal-actions"><Link href="/library">Вернуться в архив</Link><Link href="/">На главную</Link></nav></PortalShell>;}

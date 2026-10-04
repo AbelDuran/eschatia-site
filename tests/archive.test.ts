@@ -29,3 +29,11 @@ test("curated metadata fits editor schema and lore links resolve",()=>{
 test("metadata rejects unsafe links and malformed dates",()=>{
  for(const bad of [{ruler:{name:"A",title:"B",body:"C",image:"javascript:alert(1)",href:""}},{faithPath:"//evil.example"},{date:"2026-02-30"},{application:"https://evil.example"}])assert.equal(detailsInput.safeParse(bad).success,false);
 });
+
+test("archive sorts and filters 600 public records without exposing drafts",()=>{
+ const list:Article[]=Array.from({length:600},(_,i)=>({...entries[0],id:String(i),slug:"entry-"+i,title:"Запись "+String(i).padStart(3,"0"),kind:"news",created_at:new Date(2025,0,i+1).toISOString(),updated_at:new Date(2025,0,i+1).toISOString(),details:{newsType:i%2?"Патчноуты":"Событие"}}));
+ const results=searchArticles([...list,{...list[0],title:"Скрытый",status:"draft"}],"","news","","newest","Патчноуты");
+ assert.equal(results.length,300);assert.equal(results[0].id,"599");assert.equal(results.at(-1)?.id,"1");
+ assert.equal(searchArticles(list,"","","","oldest")[0].id,"0");
+ assert.equal(searchArticles(list,"","","","updated")[0].id,"599");
+});

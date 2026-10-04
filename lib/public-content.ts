@@ -1,4 +1,5 @@
 import "server-only";
+import {cache} from "react";
 import { createHash } from "node:crypto";
 import legacyHashes from "../app/data/country-legacy-hashes.json";
 import { countryBanners } from "./country-banners";
@@ -70,7 +71,7 @@ const dateString = (value: unknown): string => {
   return "";
 };
 
-export async function articleRecord(
+export const articleRecord = cache(async function articleRecord(
   kind: Kind,
   slug: string
 ): Promise<Article | null> {
@@ -102,7 +103,7 @@ export async function articleRecord(
   );
 
   return article ? enrich(article) : null;
-}
+});
 
 export const visible = (a: Article) =>
   a.status === "published" || a.status === "frozen";
@@ -322,7 +323,7 @@ export async function homeData() {
 
 export type HomeData = Awaited<ReturnType<typeof homeData>>;
 
-export async function publicIndex() {
+export const publicIndex = cache(async function publicIndex() {
   const rows = databaseConfigured()
     ? await database().query<Article>("SELECT * FROM articles")
     : [];
@@ -350,4 +351,4 @@ export async function publicIndex() {
 
     ...rows.filter(visible),
   ].map(enrich);
-}
+});
